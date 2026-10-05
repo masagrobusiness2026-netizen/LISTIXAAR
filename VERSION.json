@@ -1,0 +1,10 @@
+{
+  "project": "LISTIXAAR",
+  "version": "V10",
+  "stage": "real server deployment configuration",
+  "download_policy": "Only the newest version is needed for the working copy.",
+  "next": "Create hosting account, connect repository, choose domain, deploy",
+  "payment": "disabled until public validation",
+  "release": "DEPLOYMENT_READY",
+  "hosting": "Render + PostgreSQL"
+}
