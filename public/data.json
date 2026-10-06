@@ -1,0 +1,144 @@
+{
+  "abjad": {
+    "ا": 1,
+    "ب": 2,
+    "ج": 3,
+    "د": 4,
+    "ه": 5,
+    "و": 6,
+    "ز": 7,
+    "ح": 8,
+    "ط": 9,
+    "ي": 10,
+    "ك": 20,
+    "ل": 30,
+    "م": 40,
+    "ن": 50,
+    "ص": 60,
+    "ع": 70,
+    "ف": 80,
+    "ض": 90,
+    "ق": 100,
+    "ر": 200,
+    "س": 300,
+    "ت": 400,
+    "ث": 500,
+    "خ": 600,
+    "ذ": 700,
+    "ظ": 800,
+    "غ": 900,
+    "ش": 1000
+  },
+  "signs": [
+    {
+      "id": "belier",
+      "symbol": "♈",
+      "name": "Bélier"
+    },
+    {
+      "id": "taureau",
+      "symbol": "♉",
+      "name": "Taureau"
+    },
+    {
+      "id": "gemeaux",
+      "symbol": "♊",
+      "name": "Gémeaux"
+    },
+    {
+      "id": "cancer",
+      "symbol": "♋",
+      "name": "Cancer"
+    },
+    {
+      "id": "lion",
+      "symbol": "♌",
+      "name": "Lion"
+    },
+    {
+      "id": "vierge",
+      "symbol": "♍",
+      "name": "Vierge"
+    },
+    {
+      "id": "balance",
+      "symbol": "♎",
+      "name": "Balance"
+    },
+    {
+      "id": "scorpion",
+      "symbol": "♏",
+      "name": "Scorpion"
+    },
+    {
+      "id": "sagittaire",
+      "symbol": "♐",
+      "name": "Sagittaire"
+    },
+    {
+      "id": "capricorne",
+      "symbol": "♑",
+      "name": "Capricorne"
+    },
+    {
+      "id": "verseau",
+      "symbol": "♒",
+      "name": "Verseau"
+    },
+    {
+      "id": "poissons",
+      "symbol": "♓",
+      "name": "Poissons"
+    }
+  ],
+  "elements": [
+    {
+      "number": 1,
+      "name": "Couleur"
+    },
+    {
+      "number": 2,
+      "name": "Planète"
+    },
+    {
+      "number": 3,
+      "name": "Pierre"
+    },
+    {
+      "number": 4,
+      "name": "Meilleur partenaire"
+    },
+    {
+      "number": 5,
+      "name": "Pire partenaire"
+    },
+    {
+      "number": 6,
+      "name": "Nature / طبعة"
+    },
+    {
+      "number": 7,
+      "name": "Jour"
+    },
+    {
+      "number": 8,
+      "name": "L’AUMÔNE"
+    },
+    {
+      "number": 9,
+      "name": "Parfum"
+    },
+    {
+      "number": 10,
+      "name": "Chapitre astrologique"
+    },
+    {
+      "number": 11,
+      "name": "Noms d’Allah préférés"
+    },
+    {
+      "number": 12,
+      "name": "Encens"
+    }
+  ]
+}

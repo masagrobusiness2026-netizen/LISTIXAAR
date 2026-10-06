@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LISTIXAAR — V3</title>
+<style>
+:root{--bg:#08121f;--card:#0e1b2b;--gold:#e7c65b;--line:#80682d;--white:#f5f2e8;--muted:#cbd2dc}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--white);font-family:Georgia,serif}
+header{padding:24px 18px;border-bottom:1px solid var(--line);text-align:center}.logo{font-size:40px;letter-spacing:7px;color:var(--gold);font-weight:bold}.sub{color:var(--gold);letter-spacing:4px;margin-top:7px}
+main{max-width:1100px;margin:auto;padding:20px 16px 60px}.panel{background:var(--card);border:1px solid var(--line);border-radius:24px;padding:22px;margin:17px 0}
+h1,h2{color:var(--gold);text-align:center}.intro{text-align:center;color:var(--muted);line-height:1.6}
+.signs{display:flex;gap:8px;overflow:auto;padding:10px 0}.sign{min-width:88px;padding:10px;border:1px solid #536173;border-radius:14px;text-align:center;cursor:pointer}.active{border-color:var(--gold)!important;box-shadow:0 0 12px #e7c65b55}.sym{font-size:29px}.name{font-size:13px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}.box{border:1px solid #34485e;border-radius:13px;padding:13px}.box b{color:var(--gold)}
+input{width:100%;padding:13px;margin:5px 0 10px;border-radius:10px;border:1px solid #536173;background:#08121f;color:white;font-size:18px;text-align:right}
+button{padding:13px 20px;border:0;border-radius:10px;background:var(--gold);font-weight:bold}.result{margin-top:12px;padding:14px;border:1px solid var(--line);border-radius:12px;color:var(--muted)}
+.lock{text-align:center;color:var(--gold);font-weight:bold}
+</style>
+</head>
+<body>
+<header><div class="logo">LISTIXAAR</div><div class="sub">BY ANWAAR</div></header>
+<main>
+<section class="panel"><h1>LISTIXAAR</h1><p class="intro">Architecture du véritable programme en ligne.</p><div id="signs" class="signs"></div><div id="elements" class="grid"></div></section>
+
+<section class="panel">
+<h2>أبجد</h2><p class="lock">28 lettres officielles • répétitions conservées • réduction par 12</p>
+<input id="txt" dir="rtl" placeholder="اكتب الاسم"><button onclick="abjad()">Calculer</button><div id="aresult"></div>
+</section>
+
+<section class="panel">
+<h2>زوج</h2>
+<div class="grid">
+<div class="box">Homme<input id="hm" dir="rtl"><small>Nom</small><input id="hmm" dir="rtl"><small>Nom de la mère</small></div>
+<div class="box">Femme<input id="fm" dir="rtl"><small>Nom</small><input id="fmm" dir="rtl"><small>Nom de la mère</small></div>
+</div>
+<button onclick="zawj()" style="margin-top:12px">Calculer زوج</button><div id="zresult"></div>
+</section>
+</main>
+<script>
+let D,selected="belier";
+function token(){return localStorage.getItem("listixaar_token")||""}
+async function registerUser(){
+ const body={displayName:regName.value,email:regEmail.value,password:regPass.value};
+ const r=await fetch("/api/auth/register",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+ const x=await r.json(); if(x.token){localStorage.setItem("listixaar_token",x.token); showMe()} else authResult.textContent=x.error||"Erreur";
+}
+async function loginUser(){
+ const body={email:logEmail.value,password:logPass.value};
+ const r=await fetch("/api/auth/login",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+ const x=await r.json(); if(x.token){localStorage.setItem("listixaar_token",x.token); showMe()} else authResult.textContent=x.error||"Erreur";
+}
+async function showMe(){
+ const r=await fetch("/api/me",{headers:{Authorization:"Bearer "+token()}});
+ const x=await r.json(); authResult.textContent=x.email?("Connecté : "+x.email):"Compte non connecté.";
+}
+
+async function init(){D=await fetch("/api/structure").then(r=>r.json()).then(elements=>({elements}));D.signs=await fetch("/api/signs").then(r=>r.json());render()}
+function render(){
+document.querySelector("#signs").innerHTML=D.signs.map(s=>`<div class="sign ${s.id===selected?"active":""}" onclick="selected='${s.id}';render()"><div class="sym">${s.symbol}</div><div class="name">${s.name}</div></div>`).join("");
+document.querySelector("#elements").innerHTML=D.elements.map(e=>`<div class="box"><b>${e.number}. ${e.name}</b><br><small>Contenu officiel LISTIXAAR</small></div>`).join("");
+}
+async function abjad(){
+const text=document.querySelector("#txt").value;
+const r=await fetch("/api/abjad/calculate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text})});
+const x=await r.json();
+document.querySelector("#aresult").innerHTML=`<div class="result">Total : <b>${x.total}</b> — Réduction par 12 : <b>${x.reducedBy12}</b><br>${x.parts.map(p=>`<span dir="rtl">${p.letter}</span>=${p.value}`).join(" • ")}</div>`;
+}
+async function zawj(){
+const body={manName:hm.value,manMotherName:hmm.value,womanName:fm.value,womanMotherName:fmm.value};
+const r=await fetch("/api/zawj/calculate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+const x=await r.json();
+document.querySelector("#zresult").innerHTML=`<div class="result">Homme : <b>${x.man.total}</b> → <b>${x.man.reducedBy12}</b><br>Femme : <b>${x.woman.total}</b> → <b>${x.woman.reducedBy12}</b><br>Différence : <b>${x.difference}</b>${x.difference===0?"<br><b>Égalité — réussite.</b>":""}</div>`;
+}
+init();
+
+async function loadDashboard(){
+ const t=token();
+ if(!t){dashboardStatus.textContent="Connectez-vous d'abord.";return;}
+ const r=await fetch("/api/dashboard",{headers:{Authorization:"Bearer "+t}});
+ const x=await r.json();
+ if(!r.ok){dashboardStatus.textContent=x.error||"Erreur";return;}
+ dashboardStatus.textContent="Espace personnel actif — formule : "+(x.subscription?.status||"free");
+ history.innerHTML=x.readings.length?x.readings.map(a=>`<div class="box"><b>${a.title||a.reading_type}</b><br><small>${new Date(a.created_at).toLocaleString("fr-FR")}</small><br><button onclick="deleteReading(${a.id})">Supprimer</button></div>`).join(""):"<div class='box'>Aucune lecture sauvegardée.</div>";
+}
+async function deleteReading(id){
+ const t=token();
+ await fetch("/api/readings/"+id,{method:"DELETE",headers:{Authorization:"Bearer "+t}});
+ loadDashboard();
+}
+
+async function billingStatus(){
+ const t=token();
+ if(!t){billingResult.textContent="Connectez-vous d'abord.";return;}
+ const r=await fetch("/api/billing/status",{headers:{Authorization:"Bearer "+t}});
+ const x=await r.json();
+ billingResult.textContent=x.status==="active"?"Premium actif.":"Statut : "+(x.status||"free");
+}
+async function startPremium(){
+ const t=token();
+ if(!t){billingResult.textContent="Connectez-vous d'abord.";return;}
+ const r=await fetch("/api/billing/checkout",{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+t},body:JSON.stringify({planId:"premium_monthly"})});
+ const x=await r.json();
+ if(x.payment?.checkoutUrl){
+   window.location.href=x.payment.checkoutUrl;
+ }else{
+   billingResult.textContent=x.error==="PAYMENT_PROVIDER_NOT_CONFIGURED"
+     ?"Paiement à configurer côté serveur avant activation."
+     :(x.error||"Paiement en attente.");
+ }
+}
+</script>
+</body></html>

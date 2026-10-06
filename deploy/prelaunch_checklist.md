@@ -1,0 +1,21 @@
+# LISTIXAAR V10 — Checklist avant lancement
+
+- [ ] Domaine connecté
+- [ ] HTTPS actif
+- [ ] PostgreSQL production configuré
+- [ ] Toutes les migrations exécutées
+- [ ] 12 signes présents
+- [ ] 12 éléments par signe = 144 emplacements
+- [ ] 28 lettres أبجد vérifiées
+- [ ] Répétition des lettres vérifiée
+- [ ] Réduction par 12 vérifiée
+- [ ] زوج vérifié avec les exemples officiels
+- [ ] Comptes utilisateurs testés
+- [ ] Historique testé
+- [ ] Sauvegardes PostgreSQL configurées
+- [ ] Rate limiting actif
+- [ ] Secrets absents du frontend
+- [ ] Paiement laissé désactivé jusqu'à validation finale
+- [ ] Test mobile iPhone/Android
+- [ ] Test desktop
+- [ ] Validation finale avant ouverture publique
