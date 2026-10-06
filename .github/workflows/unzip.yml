@@ -1,0 +1,51 @@
+name: Extraire LISTIXAAR
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  extract:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Télécharger le dépôt
+        uses: actions/checkout@v4
+
+      - name: Extraire le ZIP
+        run: |
+          ZIP=$(find . -maxdepth 1 -type f -iname "*.zip" | head -n 1)
+
+          if [ -z "$ZIP" ]; then
+            echo "Aucun fichier ZIP trouvé."
+            exit 1
+          fi
+
+          rm -rf /tmp/listixaar
+          mkdir -p /tmp/listixaar
+
+          unzip -q "$ZIP" -d /tmp/listixaar
+
+          COUNT=$(find /tmp/listixaar -mindepth 1 -maxdepth 1 | wc -l)
+          ROOT=$(find /tmp/listixaar -mindepth 1 -maxdepth 1 -type d | head -n 1)
+
+          if [ "$COUNT" = "1" ] && [ -n "$ROOT" ]; then
+            cp -R "$ROOT"/. .
+          else
+            cp -R /tmp/listixaar/. .
+          fi
+
+          rm -f "$ZIP"
+
+      - name: Enregistrer les fichiers
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add -A
+
+          git commit -m "Déployer les fichiers LISTIXAAR" || echo "Aucun changement à enregistrer"
+
+          git push
