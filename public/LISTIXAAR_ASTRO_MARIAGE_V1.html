@@ -1,0 +1,868 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LISTIXAAR V9 — Moteur complet</title>
+<style>
+:root{
+  --navy:#06182c;--navy2:#0a223b;--gold:#e6c65b;--gold2:#b98d24;
+  --cream:#fff4cf;--purple:#9d4edd;--purple2:#6d2ab5;--white:#f7f8fb;
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;font-family:Georgia,"Times New Roman",serif;background:
+ radial-gradient(circle at 50% 30%,#173858 0,#081c31 42%,#031221 100%);color:var(--white)}
+body:before{content:"";position:fixed;inset:0;pointer-events:none;opacity:.35;
+ background-image:radial-gradient(circle,#fff 0 1px,transparent 1.5px);
+ background-size:73px 91px}
+header{padding:28px 18px 18px;text-align:center;background:rgba(3,16,31,.72);
+ border-bottom:1px solid #b89538;position:relative;z-index:2}
+.logo{font-size:44px;letter-spacing:7px;font-weight:700;color:var(--gold);
+ text-shadow:0 0 18px #d9b83e33}
+.by{margin-top:7px;letter-spacing:5px;color:var(--gold);font-size:14px}
+.stars{color:var(--gold);font-size:22px;letter-spacing:24px;margin-top:13px}
+nav{display:flex;justify-content:center;gap:9px;flex-wrap:wrap;padding:14px;
+ background:rgba(4,18,33,.9);border-bottom:1px solid #9b7d2e;position:sticky;top:0;z-index:10}
+button{font-family:Georgia,serif;border:1px solid var(--gold);background:transparent;color:var(--gold);
+ border-radius:30px;padding:11px 17px;font-size:15px;cursor:pointer;transition:.25s}
+button:hover{background:#caa63e1c;box-shadow:0 0 16px #d6b44b33}
+main{max-width:920px;margin:auto;padding:20px 16px 60px}
+.card{background:linear-gradient(180deg,#081d33ee,#06182be8);border:1px solid #b28f36;
+ border-radius:25px;padding:24px;margin:18px 0;box-shadow:0 15px 50px #0007, inset 0 0 40px #d0a93608}
+.hero{text-align:center;padding:32px 18px}
+.heroBrand{font-size:45px;letter-spacing:8px;color:var(--gold);font-weight:700}
+.heroBy{letter-spacing:5px;color:var(--gold);margin:8px 0 25px}
+.intro{font-size:20px;line-height:1.55;color:#e9edf3;max-width:680px;margin:20px auto 28px}
+.cta{background:linear-gradient(110deg,#b98317,#f0cf5c);color:#08182a;border:0;border-radius:17px;
+ font-size:20px;padding:18px 38px;min-width:75%;box-shadow:0 8px 30px #d5ad3b3d}
+.wheelWrap{position:relative;width:330px;height:330px;margin:15px auto 28px}
+.wheel{position:absolute;inset:25px;border:2px solid #b89439;border-radius:50%;
+ box-shadow:0 0 30px #d4b14655,0 0 80px #d4b14618;animation:rotate 28s linear infinite}
+.wheel:before,.wheel:after{content:"";position:absolute;inset:35px;border:1px solid #8d732d;border-radius:50%}
+.wheel:after{inset:72px}
+.z{
+ position:absolute;width:45px;height:45px;border-radius:11px;
+ display:grid;place-items:center;background:linear-gradient(145deg,#ad57db,#6722a2);
+ color:white;font-size:29px;box-shadow:0 0 14px #c15be87a;
+ border:1px solid #dba5ff66;z-index:3;top:50%;left:50%;margin:-22.5px;
+ --r:125px;--a:0deg;
+ animation:orbitZodiac 24s linear infinite;
+}
+.z:nth-child(1){--a:0deg}.z:nth-child(2){--a:30deg}.z:nth-child(3){--a:60deg}
+.z:nth-child(4){--a:90deg}.z:nth-child(5){--a:120deg}.z:nth-child(6){--a:150deg}
+.z:nth-child(7){--a:180deg}.z:nth-child(8){--a:210deg}.z:nth-child(9){--a:240deg}
+.z:nth-child(10){--a:270deg}.z:nth-child(11){--a:300deg}.z:nth-child(12){--a:330deg}
+.z.selected{background:linear-gradient(145deg,#ffe56e,#c79220);color:#07182b;
+box-shadow:0 0 12px #ffe56e,0 0 34px #e4bd4e99;border-color:#fff1a3;transform:scale(1.16)}
+.planetRow{display:flex;justify-content:center;gap:10px;flex-wrap:wrap;max-width:600px;margin:auto}
+.planet{border:1px solid #9c7f2f;border-radius:25px;padding:11px 18px;color:#f0d679;font-size:16px}
+h2,h3{color:var(--gold);letter-spacing:1px}
+input{width:100%;padding:14px;margin:7px 0 14px;border:1px solid #9d8035;border-radius:12px;
+ background:#06182a;color:white;font-size:17px}
+label{color:#d9dce1}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.item{padding:16px;border-radius:15px;background:#0a2139;border:1px solid #765f27;color:#f2f3f6}
+.item b{display:block;color:var(--gold);margin-bottom:7px}
+.circle{width:210px;height:210px;border:2px solid var(--gold);border-radius:50%;display:grid;place-items:center;
+ margin:15px auto;font-size:75px;box-shadow:0 0 40px #d8b43c55}
+.hidden{display:none}
+small{color:#bfc7d1}
+hr{border:0;border-top:1px solid #765f27;margin:14px 0}
+@keyframes rotate{to{transform:rotate(360deg)}}
+@keyframes orbitZodiac{
+  from{transform:rotate(var(--a)) translateX(var(--r)) rotate(calc(-1 * var(--a)))}
+  to{transform:rotate(calc(var(--a) + 360deg)) translateX(var(--r)) rotate(calc(-1 * (var(--a) + 360deg)))}
+}
+@media(max-width:500px){.logo,.heroBrand{font-size:34px;letter-spacing:5px}.wheelWrap{transform:scale(.86);margin-top:-5px;margin-bottom:-5px}.intro{font-size:18px}.cta{min-width:90%}}
+<style>@media(max-width:500px){.compatTitle{font-size:34px!important}}</style>
+<style>
+.referenceAbjad{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px}
+.refPerson{border:1px solid #80682d;border-radius:16px;padding:18px;text-align:center;background:#091e34}
+.refName{font-size:30px;direction:rtl;color:#f0d36b;margin:6px}
+.refValue{font-size:38px;color:#e6c65b;font-weight:800}
+.refRest{font-size:18px;color:#c98ee9}
+@media(max-width:620px){.referenceAbjad{grid-template-columns:1fr}}
+</style>
+
+<style>
+/* V20 — responsive global pour toute l'application */
+*,*::before,*::after{box-sizing:border-box}
+img,svg,canvas,video{max-width:100%;height:auto}
+button,input,select,textarea{max-width:100%;font:inherit}
+body{overflow-x:hidden}
+main{width:min(920px,100%);margin-inline:auto}
+.card{width:100%;max-width:100%;margin-inline:auto}
+.grid{width:100%}
+.grid>*{min-width:0}
+.intro{width:100%}
+.heroBrand,.logo{max-width:100%;overflow-wrap:anywhere}
+.wheelWrap{max-width:100%;margin-left:auto;margin-right:auto}
+.planetRow{max-width:100%}
+.actionRow{max-width:100%;display:flex;flex-wrap:wrap}
+.actionRow button{flex:0 1 auto}
+input{display:block;width:100%;min-width:0}
+#result,#zr,#ar{width:100%;max-width:100%;overflow:hidden}
+@media(max-width:700px){
+  header{padding-left:10px;padding-right:10px}
+  .logo{font-size:clamp(28px,9vw,44px);letter-spacing:clamp(2px,1.5vw,7px)}
+  .heroBrand{font-size:clamp(30px,9vw,45px);letter-spacing:clamp(2px,1.5vw,8px)}
+  .by,.heroBy{font-size:12px;letter-spacing:3px}
+  main{padding:12px 9px 45px}
+  .card{padding:18px 12px;border-radius:20px}
+  .hero{padding:24px 10px}
+  .wheelWrap{transform:scale(.82);transform-origin:center;margin-top:-22px;margin-bottom:-22px}
+  .planetRow{gap:7px}
+  .planet{font-size:14px;padding:9px 12px}
+  .intro{font-size:17px}
+  .cta{width:100%;min-width:0;padding:16px 14px}
+  .flowbar{gap:5px}
+  .flowstep{padding:6px 8px;font-size:11px}
+  .grid{grid-template-columns:1fr}
+  .actionRow{flex-direction:column}
+  .actionRow button{width:100%}
+  .profileHero{gap:10px}
+  .compatResult{padding:18px 12px}
+  .compatNumber{font-size:56px}
+}
+@media(max-width:380px){
+  .wheelWrap{transform:scale(.72);margin-top:-40px;margin-bottom:-40px}
+  .card{padding-left:9px;padding-right:9px}
+  .flowstep{font-size:10px;padding:5px 6px}
+}
+</style>
+
+<style>
+/* V19 — correction mobile / aucun débordement */
+html,body{width:100%;max-width:100%;overflow-x:hidden}
+main{width:100%;max-width:920px;overflow:hidden}
+.card{max-width:100%;overflow:hidden}
+.coupleGrid{width:100%;min-width:0}
+.personCard{min-width:0;width:100%;overflow:hidden}
+.personCard input{width:100%;max-width:100%;min-width:0;display:block}
+.compatResult{width:100%;max-width:100%;overflow:hidden}
+.compatResult .compatNumber{max-width:100%}
+@media(max-width:620px){
+  main{padding-left:10px;padding-right:10px}
+  .card{padding:18px 12px;border-radius:20px}
+  .coupleGrid{grid-template-columns:1fr;gap:12px}
+  .heart{transform:none;font-size:34px;line-height:1}
+  .personCard{padding:16px 10px}
+  .personIcon{font-size:36px}
+  .personTitle{font-size:17px}
+  #zawj > div:first-child > div:nth-child(2){
+    font-size:clamp(30px,9vw,42px)!important;
+    letter-spacing:clamp(1px,1vw,4px)!important;
+    white-space:nowrap;
+  }
+  #zawj > div:first-child > div:nth-child(3){font-size:24px!important}
+  #zawj > div:first-child > div:nth-child(4){
+    font-size:16px!important;line-height:1.4
+  }
+  .actionRow button{max-width:100%;white-space:normal}
+}
+</style>
+
+<style>
+.coupleGrid{display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:center}
+.personCard{background:#091e34;border:1px solid #80682d;border-radius:18px;padding:18px;text-align:center}
+.personIcon{font-size:42px;color:#e6c65b;margin-bottom:8px}
+.personTitle{color:#e6c65b;font-size:18px;letter-spacing:2px}
+.heart{font-size:40px;color:#d77be8;text-shadow:0 0 22px #d77be888}
+.compatResult{text-align:center;margin-top:22px;padding:24px;border:1px solid #e6c65b;border-radius:20px;
+background:radial-gradient(circle,#173958,#071a2d 70%)}
+.compatNumber{font-size:68px;font-weight:800;color:#e6c65b;text-shadow:0 0 25px #d4af3788}
+.compatLabel{font-size:20px;color:#f0d36b;letter-spacing:2px}
+@media(max-width:620px){.coupleGrid{grid-template-columns:1fr}.heart{transform:rotate(90deg)}}
+</style>
+</style>
+<style>
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%) translateY(20px);
+background:#071a2d;border:1px solid #e6c65b;color:#f4d76d;padding:12px 18px;border-radius:30px;
+opacity:0;pointer-events:none;transition:.35s;z-index:50;box-shadow:0 8px 35px #0008}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.reveal{animation:reveal .7s ease both}
+@keyframes reveal{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.elementCard{cursor:pointer;transition:.25s}
+.elementCard:hover{transform:translateY(-3px);border-color:#e6c65b;box-shadow:0 10px 30px #0005}
+.modal{position:fixed;inset:0;background:#020c18cc;display:none;align-items:center;justify-content:center;
+z-index:40;padding:18px}
+.modal.open{display:flex}
+.modalBox{max-width:620px;width:100%;background:linear-gradient(180deg,#0b233d,#06172a);
+border:1px solid #e6c65b;border-radius:22px;padding:24px;box-shadow:0 20px 70px #0009}
+.close{float:right;font-size:24px;color:#e6c65b;background:none;border:0;padding:0}
+.footer{text-align:center;color:#8f99a5;font-size:12px;letter-spacing:2px;padding:30px 10px}
+</style>
+
+<style>
+.flowbar{display:flex;justify-content:center;gap:7px;flex-wrap:wrap;margin:8px 0 20px}
+.flowstep{padding:7px 12px;border:1px solid #765f27;border-radius:20px;color:#9fa9b5;font-size:12px}
+.flowstep.active{color:#07182b;background:#e5c45b;border-color:#e5c45b}
+.primaryPanel{text-align:center;padding:30px 18px}
+.bigDate{max-width:360px;margin:10px auto 15px;text-align:center;font-size:21px;letter-spacing:2px}
+.actionRow{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}
+.profileHero{display:flex;align-items:center;justify-content:center;gap:18px;flex-wrap:wrap}
+.profileBadge{width:92px;height:92px;border-radius:50%;display:grid;place-items:center;font-size:46px;
+border:2px solid #e6c65b;box-shadow:0 0 28px #d4af3755;background:#091d32}
+.detailPanel{margin-top:18px}
+.detailPanel h3{margin-top:0}
+.notice{padding:12px;border:1px solid #765f27;border-radius:12px;color:#cbd2db;background:#081b2f}
+</style>
+
+<style>
+.profileTitle{text-align:center;margin:28px 0 8px;color:#e6c65b;font-size:27px}
+.profileSub{text-align:center;color:#bfc7d1;margin-bottom:22px}
+.elementCard{position:relative;overflow:hidden;min-height:120px}
+.elementCard:before{content:"";position:absolute;left:-45px;top:-45px;width:110px;height:110px;border-radius:50%;
+background:#d4af3710;box-shadow:0 0 45px #d4af3720}
+.elementNum{font-size:13px;color:#b89439;letter-spacing:2px}
+.elementValue{font-size:18px;margin-top:7px}
+.elementArabic{font-size:20px;direction:rtl}
+.backTop{display:block;margin:20px auto 0}
+</style>
+
+
+<style>
+.zodiacDirectoryGrid{grid-template-columns:repeat(3,1fr)}
+.zodiacChoice{cursor:pointer;text-align:center;font-family:Georgia,serif;font-size:25px;color:#e6c65b;padding:18px 10px;background:#091e34;min-height:105px}
+.zodiacChoice b{display:block;font-size:17px;margin:5px 0;color:#e6c65b}
+.zodiacChoice small{display:block;color:#bfc7d1;font-size:12px;font-weight:400}
+.zodiacChoice:hover{border-color:#e6c65b;transform:translateY(-3px)}
+@media(max-width:650px){.zodiacDirectoryGrid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:380px){.zodiacDirectoryGrid{grid-template-columns:1fr}}
+</style>
+
+</head>
+<body>
+<header>
+  <div class="logo">LISTIXAAR</div>
+  <div class="by">BY ANWAAR</div>
+  <div class="stars">✦　✧　✦　✧　✦</div>
+</header>
+<main>
+<div class="flowbar" id="flowbar">
+  <span class="flowstep active" data-step="1">01 Date</span>
+  <span class="flowstep" data-step="2">02 Signe</span>
+  <span class="flowstep" data-step="3">03 Profil</span>
+  <span class="flowstep" data-step="4">04 أبجد</span>
+  <span class="flowstep" data-step="5">05 زوج</span>
+</div>
+
+<section class="card hero">
+  <div class="heroBrand">LISTIXAAR</div>
+  <div class="heroBy">BY ANWAAR</div>
+  <div class="wheelWrap">
+    <div class="wheel"></div>
+    <span class="z" data-sign="0" onclick="selectZodiac(0)">♈</span><span class="z" data-sign="1" onclick="selectZodiac(1)">♉</span><span class="z" data-sign="2" onclick="selectZodiac(2)">♊</span><span class="z" data-sign="3" onclick="selectZodiac(3)">♋</span>
+    <span class="z" data-sign="4" onclick="selectZodiac(4)">♌</span><span class="z" data-sign="5" onclick="selectZodiac(5)">♍</span><span class="z" data-sign="6" onclick="selectZodiac(6)">♎</span><span class="z" data-sign="7" onclick="selectZodiac(7)">♏</span>
+    <span class="z" data-sign="8" onclick="selectZodiac(8)">♐</span><span class="z" data-sign="9" onclick="selectZodiac(9)">♑</span><span class="z" data-sign="10" onclick="selectZodiac(10)">♒</span><span class="z" data-sign="11" onclick="selectZodiac(11)">♓</span>
+  </div>
+  <div id="zodiacStatus" style="text-align:center;margin:18px 0;color:#d9c26a;font-size:15px">
+  Sélectionnez votre signe ou saisissez votre date de naissance.
+</div>
+  <div class="planetRow">
+    <span class="planet">☉ Soleil</span><span class="planet">☽ Lune</span><span class="planet">☿ Mercure</span>
+    <span class="planet">♀ Vénus</span><span class="planet">♃ Jupiter</span>
+  </div>
+  <p class="intro">Découvrez votre profil astrologique et explorez votre lecture symbolique.</p>
+  <button class="cta" onclick="tab('astro')">♈ COMMENCER</button>
+</section>
+<section class="card" id="zodiacDirectory">
+  <div style="text-align:center">
+    <div style="color:#b89439;letter-spacing:3px;font-size:12px">ÉTAPE 02 • ASTROLOGIE</div>
+    <h2>♈ LES 12 SIGNES ASTROLOGIQUES</h2>
+    <p style="color:#cbd2db">Sélectionnez un signe pour ouvrir sa fiche LISTIXAAR.</p>
+  </div>
+  <div class="grid zodiacDirectoryGrid">
+    <button class="item zodiacChoice" onclick="openSignProfile(0)">♈ <b>Bélier</b><small>21 mars – 20 avril</small></button>
+    <button class="item zodiacChoice" onclick="openSignProfile(1)">♉ <b>Taureau</b><small>21 avril – 20 mai</small></button>
+    <button class="item zodiacChoice" onclick="openSignProfile(2)">♊ <b>Gémeaux</b><small>21 mai – 21 juin</small></button>
+    <button class="item zodiacChoice" onclick="openSignProfile(3)">♋ <b>Cancer</b><small>22 juin – 22 juillet</small></button>
+    <button class="item zodiacChoice" onclick="openSignProfile(4)">♌ <b>Lion</b><small>23 juillet – 22 août</small></button>
+    <button class="item zodiacChoice" onclick="openSignProfile(5)">♍ <b>Vierge</b><small>23 août – 22 septembre</small></button>
+    <button class="item zodiacChoice" onclick="openSignProfile(6)">♎ <b>Balance</b><small>23 septembre – 23 octobre</small></button>
+    <button class="item zodiacChoice" onclick="openSignProfile(7)">♏ <b>Scorpion</b><small>24 octobre – 21 novembre</small></button>
+    <button class="item zodiacChoice" onclick="openSignProfile(8)">♐ <b>Sagittaire</b><small>21 novembre – 20 décembre</small></button>
+    <button class="item zodiacChoice" onclick="openSignProfile(9)">♑ <b>Capricorne</b><small>21 décembre – 19 janvier</small></button>
+    <button class="item zodiacChoice" onclick="openSignProfile(10)">♒ <b>Verseau</b><small>20 janvier – 18 février</small></button>
+    <button class="item zodiacChoice" onclick="openSignProfile(11)">♓ <b>Poissons</b><small>19 février – 20 mars</small></button>
+  </div>
+  <div id="signProfilePreview" style="margin-top:18px"></div>
+</section>
+
+<div class="card" id="systemStatus">
+<h3>🔒 LISTIXAAR — Système validé</h3>
+<p>Astrologie 12 signes • 12 éléments • أبجد • زوج</p>
+<small>Les règles validées sont conservées. Les données non renseignées restent à compléter, sans invention automatique.</small>
+</div>
+
+<div class="card">
+<h2>✦ Votre espace LISTIXAAR</h2>
+<button onclick="tab('astro')">✨ Mon LISTIXAAR</button>
+<button onclick="tab('abjad')">🔢 أبجد</button>
+<button onclick="tab('zawj')">💍 COMPATIBILITÉ</button>
+</div>
+
+
+<section class="card" style="text-align:center">
+  <div style="color:#b89439;letter-spacing:3px;font-size:12px">LISTIXAAR • PROGRESSION</div>
+  <h2 style="margin-bottom:8px">Moteur astrologique ✓</h2>
+  <p style="color:#c7ced7;margin:6px 0">Cercle animé ✓ &nbsp; Signe automatique ✓ &nbsp; Profil 12 éléments ✓</p>
+  <p style="color:#c7ced7;margin:6px 0">أبجد ✓ &nbsp; زوج ✓</p>
+</section>
+
+<section id="astro" class="card primaryPanel">
+  <div style="color:#b89439;letter-spacing:3px;font-size:12px">ÉTAPE 01</div>
+  <h2>✨ Découvrez votre LISTIXAAR</h2>
+  <p class="intro" style="margin-top:8px">Entrez votre date de naissance pour ouvrir votre profil astrologique.</p>
+  <input id="date" class="bigDate" placeholder="JJ/MM/AA" aria-label="Date de naissance au format JJ/MM/AA" inputmode="numeric" maxlength="10"
+oninput="formatDateInput(this)" onkeydown="if(event.key==='Enter'){event.preventDefault();astro()}" >
+  <div class="actionRow">
+    <button class="cta" onclick="astro()">♈ OUVRIR MON PROFIL</button>
+  </div>
+  <div id="result" class="detailPanel"></div>
+</section>
+
+
+<section id="abjad" class="card hidden">
+<h2>🔢 أبجد</h2>
+<label>Nom</label><input id="an" dir="rtl">
+<label>Nom de la mère</label><input id="am" dir="rtl">
+<button onclick="abjadCalc()">Calculer</button>
+<div id="ar"></div>
+<div class="actionRow"><button onclick="openZawjFlow()">💍 Étape suivante : زوج</button><button onclick="backToAstro()">← Profil</button></div>
+</section>
+
+
+<div class="card" style="text-align:center;border-color:#e6c65b">
+  <div style="color:#e6c65b;letter-spacing:3px;font-size:12px">MOTEUR RÉEL LISTIXAAR</div>
+  <p style="margin:8px 0 0;color:#cbd2db">Les champs ci-dessous utilisent directement le calcul أبجد + زوج.</p>
+</div>
+<section id="zawj" class="card">
+  <div style="text-align:center">
+    <div style="color:#b89439;letter-spacing:3px;font-size:12px">ÉTAPE 05 • CALCUL RÉEL</div>
+    <div style="font-size:40px;font-weight:800;letter-spacing:4px;color:#e6c65b">COMPATIBILITÉ</div>
+    <div style="font-size:27px;color:#c98ee9;direction:rtl;margin-top:3px">زوج</div>
+    <div style="color:#bfc7d1;margin:8px 0 24px">Analyse du couple selon le système LISTIXAAR</div>
+  </div>
+
+  <div class="coupleGrid">
+    <div class="personCard">
+      <div class="personIcon">♂</div>
+      <div class="personTitle">HOMME</div>
+      <label>Nom</label><input id="mn" dir="rtl">
+      <label>Nom de la mère</label><input id="mm" dir="rtl">
+    </div>
+    <div class="heart">♥</div>
+    <div class="personCard">
+      <div class="personIcon">♀</div>
+      <div class="personTitle">FEMME</div>
+      <label>Nom</label><input id="fn" dir="rtl">
+      <label>Nom de la mère</label><input id="fm" dir="rtl">
+    </div>
+  </div>
+
+  <div style="text-align:center;margin-top:22px">
+    <button class="cta" onclick="zawj()">💍 CALCULER LA COMPATIBILITÉ</button>
+  </div>
+  <div id="zr"></div>
+  <div class="actionRow"><button onclick="zawjReset()">↻ Nouveau calcul</button><button onclick="backToAstro()">✨ Retour au profil</button></div>
+</section>
+
+
+<div class="card">
+<div style="text-align:center;color:#b89439;letter-spacing:3px;font-size:12px">DÉMONSTRATION</div>
+<h3 style="text-align:center">🧪 Exemple de référence زوج</h3>
+<p style="text-align:center;color:#bfc7d1">Les noms ci-dessous servent uniquement à démontrer le fonctionnement du calcul.</p>
+<p><b>Homme :</b> آدم</p>
+<p><b>Femme :</b> حوى</p>
+<button onclick="referenceTest()">Lancer la simulation</button>
+<div id="referenceResult"></div>
+</div>
+
+<section class="card">
+  <div style="color:#b89439;letter-spacing:3px;font-size:12px">ARCHITECTURE LISTIXAAR</div>
+  <h2>Le parcours complet</h2>
+  <div class="grid">
+    <div class="item"><b>01 • Date</b>JJ/MM/AA → signe automatique</div>
+    <div class="item"><b>02 • Cercle</b>Les 12 signes tournent autour du cercle</div>
+    <div class="item"><b>03 • Profil</b>Les 12 éléments du signe</div>
+    <div class="item"><b>04 • أبجد</b>Nom + mère → calcul numérique</div>
+    <div class="item"><b>05 • زوج</b>Homme + femme → comparaison</div>
+  </div>
+</section>
+
+<div class="card" style="text-align:center">
+  <div style="color:#b89439;letter-spacing:3px;font-size:11px">LISTIXAAR</div>
+  <p style="color:#cbd2db;margin:8px 0 0">Interface responsive globale activée ✓</p>
+</div>
+
+<section class="card" id="abjadRules">
+  <div style="text-align:center">
+    <div style="color:#b89439;letter-spacing:3px;font-size:12px">ÉTAPE 06</div>
+    <h2>RÈGLES DU CALCUL أبجد</h2>
+    <p style="color:#cbd2db">Base de travail du moteur LISTIXAAR</p>
+  </div>
+  <div class="grid">
+    <div class="item"><b>01 • Nom</b><div class="elementValue">Calcul selon les valeurs Abjad enregistrées dans LISTIXAAR.</div></div>
+    <div class="item"><b>02 • Nom de la mère</b><div class="elementValue">Calculé séparément puis intégré au total.</div></div>
+    <div class="item"><b>03 • Total</b><div class="elementValue">Nom + nom de la mère.</div></div>
+    <div class="item"><b>04 • Réduction</b><div class="elementValue">Le total est réduit selon la règle LISTIXAAR.</div></div>
+  </div>
+  <div class="notice" style="margin-top:16px;text-align:center">
+    <b>STATUT : SYSTÈME LISTIXAAR</b><br>
+    Les valeurs et règles personnalisées seront conservées telles que validées avant la mise en production.
+  </div>
+</section>
+
+
+<section class="card" id="abjadTable">
+  <div style="text-align:center">
+    <div style="color:#b89439;letter-spacing:3px;font-size:12px">RÉFÉRENCE OFFICIELLE</div>
+    <h2>28 LETTRES — LISTIXAAR</h2>
+    <p style="color:#cbd2db">Table corrigée selon les valeurs définies pour notre projet</p>
+  </div>
+  <div class="grid"><div class='item' style='text-align:center'><b style='font-size:25px;direction:rtl'>ا</b><div class='elementValue'>1</div></div><div class='item' style='text-align:center'><b style='font-size:25px;direction:rtl'>ب</b><div class='elementValue'>2</div></div><div class='item' style='text-align:center'><b style='font-size:25px;direction:rtl'>ج</b><div class='elementValue'>3</div></div><div class='item' style='text-align:center'><b style='font-size:25px;direction:rtl'>د</b><div class='elementValue'>4</div></div><div class='item' style='text-align:center'><b style='font-size:25px;direction:rtl'>ه</b><div class='elementValue'>5</div></div><div class='item' style='text-align:center'><b style='font-size:25px;direction:rtl'>و</b><div class='elementValue'>6</div></div><div class='item' style='text-align:center'><b style='font-size:25px;direction:rtl'>ز</b><div class='elementValue'>7</div></div><div class='item' style='text-align:center'><b style='font-size:25px;direction:rtl'>ح</b><div class='elementValue'>8</div></div><div class='item' style='text-align:center'><b style='font-size:25px;direction:rtl'>ط</b><div class='elementValue'>9</div></div><div class='item' style='text-align:center'><b style='font-size:25px;direction:rtl'>ي</b><div class='elementValue'>10</div></div><div class='item' style='text-align:center'><b style='font-size:25px;direction:rtl'>ك</b><div class='elementValue'>20</div></div><div class='item' style='text-align:center'><b style='font-size:25px;direction:rtl'>ل</b><div class='elementValue'>30</div></div><div class='item' style='text-align:center'><b style='font-size:25px;direction:rtl'>م</b><div class='elementValue'>40</div></div><div class='item' style='text-align:center'><b style='font-size:25px;direction:rtl'>ن</b><div class='elementValue'>50</div></div><div class='item' style='text-align:center'><b style='font-size:25px;direction:rtl'>ص</b><div class='elementValue'>60</div></div><div class='item' style='text-align:center'><b style='font-size:25px;direction:rtl'>ع</b><div class='elementValue'>70</div></div><div class='item' style='text-align:center'><b style='font-size:25px;direction:rtl'>ف</b><div class='elementValue'>80</div></div><div class='item' style='text-align:center'><b style='font-size:25px;direction:rtl'>ض</b><div class='elementValue'>90</div></div><div class='item' style='text-align:center'><b style='font-size:25px;direction:rtl'>ق</b><div class='elementValue'>100</div></div><div class='item' style='text-align:center'><b style='font-size:25px;direction:rtl'>ر</b><div class='elementValue'>200</div></div><div class='item' style='text-align:center'><b style='font-size:25px;direction:rtl'>س</b><div class='elementValue'>300</div></div><div class='item' style='text-align:center'><b style='font-size:25px;direction:rtl'>ت</b><div class='elementValue'>400</div></div><div class='item' style='text-align:center'><b style='font-size:25px;direction:rtl'>ث</b><div class='elementValue'>500</div></div><div class='item' style='text-align:center'><b style='font-size:25px;direction:rtl'>خ</b><div class='elementValue'>600</div></div><div class='item' style='text-align:center'><b style='font-size:25px;direction:rtl'>ذ</b><div class='elementValue'>700</div></div><div class='item' style='text-align:center'><b style='font-size:25px;direction:rtl'>ظ</b><div class='elementValue'>800</div></div><div class='item' style='text-align:center'><b style='font-size:25px;direction:rtl'>غ</b><div class='elementValue'>900</div></div><div class='item' style='text-align:center'><b style='font-size:25px;direction:rtl'>ش</b><div class='elementValue'>1000</div></div></div>
+  <div class="notice" style="margin-top:18px;text-align:center">
+    <b>Ordre et valeurs verrouillés</b><br>
+    <span dir="rtl">ا ب ج د ه و ز ح ط ي ك ل م ن ص ع ف ض ق ر س ت ث خ ذ ظ غ ش</span>
+  </div>
+</section>
+
+
+<section class="card" id="abjadEngineTest">
+  <div style="text-align:center">
+    <div style="color:#b89439;letter-spacing:3px;font-size:12px">ÉTAPE 08</div>
+    <h2>MOTEUR ABJAD — TEST RÉEL</h2>
+    <p style="color:#cbd2db">Chaque lettre est reconnue et additionnée automatiquement.</p>
+  </div>
+  <div class="grid">
+    <div class="item">
+      <b>Nom à tester</b>
+      <input id="abjadTestName" dir="rtl" placeholder="اكتب الاسم">
+      <button onclick="renderAbjad(document.getElementById('abjadTestName').value,'abjadTestResult')" style="margin-top:10px">Calculer</button>
+      <div id="abjadTestResult"></div>
+    </div>
+    <div class="item">
+      <b>Références de simulation</b>
+      <p style="direction:rtl;font-size:20px">آدم</p><div id="referenceAbjadAdam"></div>
+      <p style="direction:rtl;font-size:20px">حوى</p><div id="referenceAbjadHawa"></div>
+      <button onclick="testAbjadReference()">Afficher les calculs</button>
+    </div>
+  </div>
+</section>
+
+<section class="card" id="abjadValidation">
+  <div style="text-align:center">
+    <div style="color:#b89439;letter-spacing:3px;font-size:12px">ÉTAPE 09 • CORRECTION</div>
+    <h2>VÉRIFICATION DE LA TABLE أبجد</h2>
+    <p style="color:#cbd2db">Contrôle exact des lettres ET de leurs valeurs avant connexion à COMPATIBILITÉ.</p>
+  </div>
+  <div class="notice">
+    Ordre officiel : <span dir="rtl">ا ب ج د ه و ز ح ط ي ك ل م ن ص ع ف ض ق ر س ت ث خ ذ ظ غ ش</span>
+  </div>
+  <div style="text-align:center;margin-top:16px">
+    <button class="cta" onclick="runAbjadValidation()">✓ LANCER LA VÉRIFICATION</button>
+  </div>
+  <div id="validationResult"></div>
+</section>
+
+<section class="card" id="abjadLock">
+  <div style="text-align:center">
+    <div style="color:#b89439;letter-spacing:3px;font-size:12px">ÉTAPE 10</div>
+    <h2>ABJAD LISTIXAAR — RÉFÉRENCE OFFICIELLE</h2>
+    <p style="color:#cbd2db">Cette table devient la référence unique du moteur. Elle ne doit pas être remplacée par l’Abjad standard.</p>
+  </div>
+  <div class="notice" style="text-align:center">
+    <b>TABLE OFFICIELLE CONSERVÉE</b><br>
+    <span dir="rtl" style="font-size:21px">ا ب ج د ه و ز ح ط ي ك ل م ن ص ع ف ض ق ر س ت ث خ ذ ظ غ ش</span>
+  </div>
+  <div style="text-align:center;margin-top:16px">
+    <button onclick="runFinalAbjadLock()">✓ Vérifier et verrouiller</button>
+  </div>
+  <div id="finalLockResult"></div>
+</section>
+
+<section class="card" id="repetition">
+  <div style="text-align:center">
+    <div style="color:#b89439;letter-spacing:3px;font-size:12px">ÉTAPE 11</div>
+    <h2>RÉPÉTITION DES LETTRES</h2>
+    <p style="color:#cbd2db">
+      Dans LISTIXAAR, une lettre répétée dans un nom est comptée à chaque apparition.
+      Sa valeur officielle reste identique à chaque répétition.
+    </p>
+  </div>
+  <div class="notice" style="text-align:center">
+    <b>RÈGLE</b><br>
+    Exemple : <span dir="rtl">محمد</span> → م + ح + م + د<br>
+    La lettre <span dir="rtl">م</span> apparaît deux fois et sa valeur est donc comptée deux fois.
+  </div>
+  <div style="max-width:650px;margin:18px auto;text-align:center">
+    <input id="repeatName" dir="rtl" placeholder="اكتب الاسم">
+    <button onclick="testRepetition()">Vérifier la répétition</button>
+  </div>
+  <div id="repeatResult"></div>
+</section>
+
+<section class="card" id="compatEngineStatus">
+  <div style="text-align:center">
+    <div style="color:#b89439;letter-spacing:3px;font-size:12px">ÉTAPE 12</div>
+    <h2>COMPATIBILITÉ — MOTEUR ABJAD</h2>
+    <p style="color:#cbd2db">Le calcul زوج utilise maintenant la table Abjad officielle et la répétition des lettres.</p>
+  </div>
+  <div class="notice" style="text-align:center">
+    <b>CHAÎNE DU CALCUL</b><br>
+    Nom + nom de la mère → valeur de chaque lettre → répétitions comptées → total → reste → comparaison → résultat.
+  </div>
+</section>
+</main>
+
+<script>
+const V={ا:1,ب:2,ج:3,د:4,ه:5,و:6,ز:7,ح:8,ط:9,ي:10,ك:20,ل:30,م:40,ن:50,ص:60,ع:70,ف:80,ض:90,ق:100,ر:200,س:300,ت:400,ث:500,خ:600,ذ:700,ظ:800,غ:900,ش:1000};
+function val(c){if("آأإ".includes(c))return 1;if("ةه".includes(c))return 5;if("ىئيوؤ".includes(c))return 10;if(c==="ء")return 1;return V[c]||0}
+function sum(s){return [...s].reduce((a,c)=>a+val(c),0)}
+function rest(n){return n%12||12}
+function tab(x){for(const id of["astro","abjad","zawj"])document.getElementById(id).classList.add("hidden");document.getElementById(x).classList.remove("hidden")}
+const S=[
+["♈","Bélier",3,21,4,20,"Rouge","مريخ","Diamant, Rubis, Jaspe rouge","Balance","Capricorne","Feu","Mardi"],
+["♉","Taureau",4,21,5,20,"القرنفل البني","الزهرة","Émeraude, Saphir, Malachite","Scorpion","Verseau","Terre","Vendredi"],
+["♊","Gémeaux",5,21,6,21,"أخضر","عطارد","Agate, Œil de tigre, Citrine","Sagittaire","Poissons","هوائي","Mercredi"],
+["♋","Cancer",6,22,7,22,"الخضي الأسود","القمر","Pierre de lune, Perle, Émeraude","Capricorne","Balance","مائي","Lundi"],
+["♌","Lion",7,23,8,22,"Doré, jaune","شمس","Rubis, Œil de tigre, Diamant","Verseau","Scorpion","ناري","Dimanche"],
+["♍","Vierge",8,23,9,22,"أخضر، بني غامق","عطارد","Péridot, Cornaline, Ambre","Poissons","Sagittaire","ترابي","Mercredi"],
+["♎","Balance",9,23,10,23,"الأزرق الفاتح","الزهرة","Opale, Tourmaline rose, Lapis-lazuli","Bélier","Cancer","هوائي","Vendredi"],
+["♏","Scorpion",10,24,11,21,"أحمر داكن","بلوتو","Topaze, Grenat, Obsidienne","Taureau","Lion","مائي","Mardi"],
+["♐","Sagittaire",11,21,12,20,"الأرجواني، الأزرق الغامق","المشتري","Turquoise, Améthyste, Saphir","Gémeaux","Vierge","ناري","Jeudi"],
+["♑","Capricorne",12,21,1,19,"بني","زحل","Onyx, Tourmaline noire, Grenat","Cancer","Bélier","ترابي","Samedi"],
+["♒","Verseau",1,20,2,18,"الأزرق الفضي","أورانوس","Aigue-marine, Turquoise, Améthyste","Lion","Sagittaire","هوائي","Samedi"],
+["♓","Poissons",2,19,3,20,"اللازوردى الأخضر المزرق","نبتون","Améthyste, Aigue-marine, Jade","Vierge","Gémeaux","مائي","Jeudi"]
+];
+function find(m,d){return S.find(x=>{let a=x[2]*100+x[3],b=x[4]*100+x[5],z=m*100+d;return a<=b?z>=a&&z<=b:z>=a||z<=b})}
+function formatDateInput(el){
+  let v=(el.value||"").replace(/\D/g,"").slice(0,8);
+  if(v.length>4) v=v.slice(0,2)+"/"+v.slice(2,4)+"/"+v.slice(4);
+  else if(v.length>2) v=v.slice(0,2)+"/"+v.slice(2);
+  el.value=v;
+}
+function astro(){
+  let p=document.getElementById("date").value.split(/[\/.-]/).map(Number),s=find(p[1],p[0]);
+  if(!s)return alert("Date invalide");
+  highlightDateSign(s);
+  setFlow(3);
+  let labels=["Couleur","Planète","Pierre","Meilleur partenaire","Pire partenaire","Nature","Jour"];
+  let vals=s.slice(6);
+  const extra=[
+    ["8. L’Aumône","Donnée centrale LISTIXAAR"],
+    ["9. Parfum","Donnée centrale LISTIXAAR"],
+    ["10. Caractéristiques & orientation","Qualités • relations • travail • points de vigilance"],
+    ["11. Noms d’Allah + valeurs","Donnée centrale LISTIXAAR"],
+    ["12. Encens","Donnée centrale LISTIXAAR"]
+  ];
+  let cards=vals.map((v,i)=>{
+    const safe=String(v).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+    return "<div class='item elementCard'><div class='elementNum'>0"+(i+1)+"</div><b>"+labels[i]+"</b><div class='elementValue'>"+safe+"</div></div>";
+  }).join("");
+  cards+=extra.map((x,i)=>"<div class='item elementCard'><div class='elementNum'>"+(i+8)+"</div><b>"+x[0]+"</b><div class='elementValue'>"+x[1]+"</div></div>").join("");
+  document.getElementById("result").innerHTML=
+    "<div class='circle'>"+s[0]+"</div>"+
+    "<div class='profileTitle'>"+s[0]+" "+s[1]+"</div>"+
+    "<div class='profileSub'>Votre profil symbolique LISTIXAAR</div>"+
+    "<div class='grid'>"+cards+"</div>"+
+    "<button class='backTop' onclick='window.scrollTo({top:0,behavior:\"smooth\"})'>↑ Retour en haut</button>";
+}
+function abjadCalc(){let a=sum(document.getElementById("an").value),b=sum(document.getElementById("am").value),t=a+b;document.getElementById("ar").innerHTML="<div class='card'>Nom : "+a+"<br>Mère : "+b+"<br><b>Total : "+t+" — Reste : "+rest(t)+"</b></div>"}
+const R={1:"vie commune durable et bonne",2:"animosité et désaccord",3:"sort moyen",4:"vie commune agréable",5:"répulsion",6:"situation droite",7:"mauvaise entente",8:"elle vertueuse, lui corrompu",9:"chance moyenne",10:"heureuse et bénie",11:"contrariété, corruption et séparation"};
+function zawj(){
+  const hommeNom=(document.getElementById("mn").value||"").trim();
+  const hommeMere=(document.getElementById("mm").value||"").trim();
+  const femmeNom=(document.getElementById("fn").value||"").trim();
+  const femmeMere=(document.getElementById("fm").value||"").trim();
+
+  if(!hommeNom||!hommeMere||!femmeNom||!femmeMere){
+    toast("Veuillez remplir les quatre champs.");
+    return;
+  }
+
+  const hommeNomCalc=abjadBreakdown(hommeNom);
+  const hommeMereCalc=abjadBreakdown(hommeMere);
+  const femmeNomCalc=abjadBreakdown(femmeNom);
+  const femmeMereCalc=abjadBreakdown(femmeMere);
+
+  const hommeTotal=hommeNomCalc.total+hommeMereCalc.total;
+  const femmeTotal=femmeNomCalc.total+femmeMereCalc.total;
+  const hommeReste=rest(hommeTotal);
+  const femmeReste=rest(femmeTotal);
+  const difference=Math.abs(hommeReste-femmeReste);
+  const text=hommeReste===femmeReste?"Compatible":(R[difference]||"Résultat à définir.");
+
+  const repetitionInfo=(calc)=>{
+    const counts={};
+    calc.letters.forEach(x=>counts[x.letter]=(counts[x.letter]||0)+1);
+    return Object.entries(counts).filter(x=>x[1]>1)
+      .map(x=>x[0]+" × "+x[1]).join("، ") || "Aucune";
+  };
+
+  zr.innerHTML="<div class='compatResult reveal'>"+
+    "<div style='color:#e6c65b;font-size:28px;font-weight:800;letter-spacing:3px'>"+
+    (hommeReste===femmeReste?"COMPATIBLE":"RÉSULTAT")+"</div>"+
+    "<div class='compatNumber'>"+difference+"</div>"+
+    "<div style='font-size:17px;color:#dbe0e7'>"+
+    "Homme : "+hommeReste+" • Femme : "+femmeReste+"<br>"+
+    "Total Homme : "+hommeTotal+" • Total Femme : "+femmeTotal+"<br>"+
+    text+
+    "</div>"+
+    "<div style='margin-top:14px;font-size:14px;color:#cbd2db'>"+
+    "Répétitions Homme : "+repetitionInfo(hommeNomCalc)+" / "+repetitionInfo(hommeMereCalc)+"<br>"+
+    "Répétitions Femme : "+repetitionInfo(femmeNomCalc)+" / "+repetitionInfo(femmeMereCalc)+
+    "</div></div>";
+
+  setFlow(5);
+  toast("Calcul زوج terminé avec le moteur Abjad officiel");
+}
+
+function selectZodiac(index){
+  document.querySelectorAll(".z").forEach((el,i)=>el.classList.toggle("selected",i===index));
+  const s=S[index];
+  if(s){
+    document.getElementById("zodiacStatus").innerHTML =
+      "✦ Signe sélectionné : <strong style='color:#f0d36b'>"+s[0]+" "+s[1]+"</strong>";
+  }
+}
+function highlightDateSign(s){
+  const idx=S.indexOf(s);
+  if(idx>=0) selectZodiac(idx);
+}
+
+function setFlow(active){
+  document.querySelectorAll(".flowstep").forEach(el=>{
+    const n=Number(el.dataset.step);
+    el.classList.toggle("active",n===active);
+  });
+}
+function openAbjadFlow(){setFlow(4);tab("abjad");window.scrollTo({top:0,behavior:"smooth"});}
+function openZawjFlow(){setFlow(5);tab("zawj");window.scrollTo({top:0,behavior:"smooth"});}
+function backToAstro(){setFlow(1);tab("astro");window.scrollTo({top:0,behavior:"smooth"});}
+
+function toast(msg){
+ const t=document.getElementById("toast"); t.textContent=msg; t.classList.add("show");
+ setTimeout(()=>t.classList.remove("show"),2600);
+}
+function openModal(title,body){
+ document.getElementById("modalTitle").textContent=title;
+ document.getElementById("modalBody").innerHTML=body;
+ document.getElementById("modal").classList.add("open");
+}
+function closeModal(){document.getElementById("modal").classList.remove("open")}
+function explainElement(n,title,value){
+ openModal("Élément "+n+" — "+title,
+ "<p style='color:#e6c65b;font-size:20px'>"+value+"</p><p style='color:#cbd2db'>Cet élément fait partie du profil officiel LISTIXAAR.</p>");
+}
+
+function zawjReset(){
+  ["mn","mm","fn","fm"].forEach(id=>document.getElementById(id).value="");
+  document.getElementById("zr").innerHTML="";
+  toast("Nouveau calcul prêt");
+}
+
+function openAbjadRules(){
+  const el=document.getElementById("abjadRules");
+  if(el) el.scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+function openAbjadTable(){
+  const el=document.getElementById("abjadTable");
+  if(el) el.scrollIntoView({behavior:"smooth",block:"start"});
+}
+</script>
+
+<script>
+function normalizeArabicForListixaar(s){
+  return (s||"")
+    .replace(/[\u064B-\u065F\u0670]/g,"")
+    .replace(/\s+/g,"");
+}
+const oldSum = sum;
+sum = function(s){
+  return [...normalizeArabicForListixaar(s)].reduce((a,c)=>a+val(c),0);
+};
+</script>
+
+<script>
+function referenceTest(){
+  const h = sum("آدم"), f = sum("حوى");
+  const hr = rest(h), fr = rest(f), d = Math.abs(hr-fr);
+  const msg = hr===fr ? "Simulation : restes égaux." : (R[d] || "Simulation : résultat à définir.");
+  document.getElementById("referenceResult").innerHTML =
+    "<div class='referenceAbjad'>"+
+      "<div class='refPerson'><div>HOMME</div><div class='refName'>آدم</div><div class='refValue'>"+h+"</div><div class='refRest'>Reste : "+hr+"</div></div>"+
+      "<div class='refPerson'><div>FEMME</div><div class='refName'>حوى</div><div class='refValue'>"+f+"</div><div class='refRest'>Reste : "+fr+"</div></div>"+
+    "</div><div class='card' style='text-align:center;margin-top:14px'><b>Différence : "+d+"</b><br>"+msg+"</div>";
+}
+</script>
+
+<div id="toast" class="toast"></div>
+<div id="modal" class="modal" onclick="if(event.target===this)closeModal()">
+  <div class="modalBox">
+    <button class="close" onclick="closeModal()">×</button>
+    <h2 id="modalTitle"></h2>
+    <div id="modalBody"></div>
+  </div>
+</div>
+<footer class="footer">LISTIXAAR • BY ANWAAR • PROTOTYPE V15</footer>
+
+<script>
+/* LISTIXAAR V27 — moteur Abjad réel */
+const ABJAD = {
+  "ا":1,
+  "ب":2,
+  "ج":3,
+  "د":4,
+  "ه":5,
+  "و":6,
+  "ز":7,
+  "ح":8,
+  "ط":9,
+  "ي":10,
+  "ك":20,
+  "ل":30,
+  "م":40,
+  "ن":50,
+  "ص":60,
+  "ع":70,
+  "ف":80,
+  "ض":90,
+  "ق":100,
+  "ر":200,
+  "س":300,
+  "ت":400,
+  "ث":500,
+  "خ":600,
+  "ذ":700,
+  "ظ":800,
+  "غ":900,
+  "ش":1000
+};
+
+function normalizeArabic(text){
+  return String(text||"")
+    .replace(/[\u064B-\u065F\u0670]/g,"")
+    .replace(/ـ/g,"")
+    .replace(/أ/g,"ا")
+    .replace(/إ/g,"ا")
+    .replace(/آ/g,"ا")
+    .replace(/ٱ/g,"ا")
+    .replace(/ة/g,"ه")
+    .replace(/ى/g,"ي")
+    .replace(/ئ/g,"ي")
+    .replace(/ؤ/g,"و")
+    .replace(/ء/g,"ا")
+    .trim();
+}
+
+function abjadBreakdown(text){
+  const clean=normalizeArabic(text);
+  const letters=[];
+  let total=0;
+  for(const ch of clean){
+    if(ABJAD[ch]!==undefined){
+      letters.push({letter:ch,value:ABJAD[ch]});
+      total+=ABJAD[ch];
+    }
+  }
+  return {text:clean,letters,total,rest:rest(total)};
+}
+
+function renderAbjad(text,targetId){
+  const r=abjadBreakdown(text);
+  const el=document.getElementById(targetId);
+  if(!el)return;
+  const rows=r.letters.map(x=>"<span style='display:inline-block;margin:3px 5px;padding:5px 8px;border:1px solid #80682d;border-radius:9px'><b style='direction:rtl'>"+x.letter+"</b> = "+x.value+"</span>").join("");
+  el.innerHTML=
+    "<div class='card reveal'>"+
+    "<div style='direction:rtl;font-size:30px;color:#e6c65b'>"+r.text+"</div>"+
+    "<div style='margin:12px 0'>"+rows+"</div>"+
+    "<hr><b>Total : "+r.total+"</b> &nbsp; • &nbsp; <b>Reste : "+r.rest+"</b>"+
+    "</div>";
+}
+
+function testAbjadReference(){
+  renderAbjad("آدم","referenceAbjadAdam");
+  renderAbjad("حوى","referenceAbjadHawa");
+}
+</script>
+
+<script>
+function runAbjadValidation(){
+  const expected = [["ا",1],["ب",2],["ج",3],["د",4],["ه",5],["و",6],["ز",7],["ح",8],["ط",9],["ي",10],
+    ["ك",20],["ل",30],["م",40],["ن",50],["ص",60],["ع",70],["ف",80],["ض",90],["ق",100],["ر",200],
+    ["س",300],["ت",400],["ث",500],["خ",600],["ذ",700],["ظ",800],["غ",900],["ش",1000]];
+  const ok = expected.every(([l,v]) => ABJAD[l]===v);
+  const rows = expected.map(([l,v]) =>
+    "<div style='padding:6px;border-bottom:1px solid #30445a'><b dir='rtl'>"+l+
+    "</b> = "+v+" <span style='float:right;color:#e6c65b'>"+(ABJAD[l]===v?"✓":"✕")+"</span></div>"
+  ).join("");
+  document.getElementById("validationResult").innerHTML =
+    "<div class='card reveal'><b>"+(ok?"✓ TABLE OFFICIELLE VALIDÉE":"✕ ERREUR DANS LA TABLE")+
+    "</b><div style='margin-top:10px;direction:rtl;font-size:20px'>"+
+    expected.map(x=>x[0]).join(" ")+"</div><hr>"+rows+"</div>";
+}
+</script>
+
+<script>
+function runFinalAbjadLock(){
+  const official = {
+    "ا":1,"ب":2,"ج":3,"د":4,"ه":5,"و":6,"ز":7,"ح":8,"ط":9,"ي":10,
+    "ك":20,"ل":30,"م":40,"ن":50,"ص":60,"ع":70,"ف":80,"ض":90,"ق":100,
+    "ر":200,"س":300,"ت":400,"ث":500,"خ":600,"ذ":700,"ظ":800,"غ":900,"ش":1000
+  };
+  const keys=Object.keys(official);
+  const ok=keys.length===28 && keys.every(k=>ABJAD[k]===official[k]);
+  const checks=[
+    ["ا",1],["ي",10],["ص",60],["ض",90],["س",300],["ش",1000],
+    ["آدم",6],["حوى",19]
+  ];
+  const checksOk=checks.every(([name,v])=>abjadBreakdown(name).total===v);
+  document.getElementById("finalLockResult").innerHTML =
+    "<div class='card reveal' style='text-align:center;margin-top:14px'>"+
+    "<div style='font-size:24px;color:"+(ok&&checksOk?"#e6c65b":"#ff7b7b")+";font-weight:800'>"+
+    (ok&&checksOk?"✓ RÉFÉRENCE VALIDÉE ET VERROUILLÉE":"✕ VÉRIFICATION À REVOIR")+
+    "</div><p>28 lettres contrôlées • valeurs contrôlées • tests de référence contrôlés</p></div>";
+}
+</script>
+
+<script>
+function testRepetition(){
+  const text=(document.getElementById("repeatName").value||"").trim();
+  const r=abjadBreakdown(text);
+  const counts={};
+  r.letters.forEach(x=>counts[x.letter]=(counts[x.letter]||0)+1);
+  const repeated=Object.entries(counts).filter(x=>x[1]>1);
+  const details=Object.entries(counts).map(([l,n])=>
+    "<span style='display:inline-block;margin:4px;padding:6px 9px;border:1px solid #80682d;border-radius:9px'>"+
+    "<b dir='rtl'>"+l+"</b> × "+n+"</span>").join("");
+  document.getElementById("repeatResult").innerHTML=
+    "<div class='card reveal' style='text-align:center'>"+
+    "<div style='font-size:22px;color:#e6c65b'>"+(text||"—")+"</div>"+
+    "<p>"+(repeated.length ? "Lettres répétées détectées :":"Aucune répétition détectée.")+"</p>"+
+    details+
+    "<hr><b>Total Abjad : "+r.total+"</b></div>";
+}
+</script>
+
+<script>
+function openSignProfile(index){
+  const s=S[index];
+  if(!s)return;
+  selectZodiac(index);
+  const labels=["Couleur","Planète","Pierre","Meilleur partenaire","Pire partenaire","Nature / طبعة","Jour","L’AUMÔNE","Parfum","Chapitre astrologique","Noms d’Allah préférés","Encens"];
+  const values=[s[6],s[7],s[8],s[9],s[10],s[11],s[12],"À intégrer selon la donnée officielle validée","À définir","À définir","À intégrer selon la donnée officielle validée","À définir"];
+  let html='<div class="card reveal"><div class="profileHero"><div class="profileBadge">'+s[0]+'</div><div><h2 style="margin:0">'+s[1]+'</h2><div style="color:#cbd2db">'+dateRange(index)+'</div></div></div><div class="grid" style="margin-top:20px">';
+  values.forEach((v,i)=>{html+='<div class="item elementCard"><div class="elementNum">'+String(i+1).padStart(2,'0')+'</div><b>'+labels[i]+'</b><div class="elementValue">'+v+'</div></div>';});
+  html+='</div><div class="notice" style="margin-top:16px;text-align:center">Les éléments non encore définis restent volontairement indiqués « À définir » : aucune donnée n’est inventée.</div></div>';
+  document.getElementById('signProfilePreview').innerHTML=html;
+  document.getElementById('signProfilePreview').scrollIntoView({behavior:'smooth',block:'start'});
+  setFlow(3);
+}
+function dateRange(i){return ["21 mars – 20 avril","21 avril – 20 mai","21 mai – 21 juin","22 juin – 22 juillet","23 juillet – 22 août","23 août – 22 septembre","23 septembre – 23 octobre","24 octobre – 21 novembre","21 novembre – 20 décembre","21 décembre – 19 janvier","20 janvier – 18 février","19 février – 20 mars"][i]}
+</script>
+
+</body></html>
